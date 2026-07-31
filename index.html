@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
   :root{
     --bg:#050505;
@@ -63,7 +67,6 @@
     z-index:0;
   }
 
-  /* ---------- Layout shell ---------- */
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
     padding:20px clamp(20px,5vw,56px);
@@ -83,19 +86,11 @@
   .brand-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;letter-spacing:0.02em;color:#fff;}
   .brand-tag{font-size:11px;color:var(--ink-soft);letter-spacing:0.14em;text-transform:uppercase;margin-top:1px;}
 
-  /* ---------- Hero ---------- */
   .hero{
     position:relative;
     z-index:1;
     padding:64px clamp(20px,5vw,56px) 76px;
     overflow:hidden;
-  }
-  .hero::before{
-    content:"";
-    position:absolute; inset:0;
-    background-image:repeating-linear-gradient(90deg, rgba(0,255,102,0.18) 0 40px, transparent 40px 92px);
-    height:2px; top:auto; bottom:34%;
-    opacity:0.4;
   }
   .hero-inner{position:relative;max-width:760px;margin:0 auto;text-align:center;}
   .eyebrow{
@@ -106,12 +101,6 @@
     border:1px solid rgba(0,255,102,0.28);
     padding:7px 16px;border-radius:100px;
   }
-  .eyebrow::before{
-    content:'';width:6px;height:6px;border-radius:50%;
-    background:var(--plate-yellow);box-shadow:0 0 10px var(--plate-yellow);
-    animation:pulseDot 1.6s infinite ease-in-out;
-  }
-  @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
   .hero h1{
     font-size:clamp(1.9rem,4.6vw,3rem);
     font-weight:700;line-height:1.12;margin:0 0 14px;letter-spacing:0.01em;
@@ -122,7 +111,6 @@
     max-width:520px;margin:0 auto 34px;
   }
 
-  /* ---------- Plate search (signature element) ---------- */
   .plate-search{
     display:flex;align-items:stretch;
     max-width:540px;margin:0 auto;
@@ -151,14 +139,7 @@
     transform:rotate(180deg);
     font-weight:700;font-size:12px;letter-spacing:0.14em;
   }
-  .plate-strip .stars{font-size:9px;letter-spacing:1px;color:var(--plate-yellow);line-height:1;}
   .plate-input-wrap{flex:1;position:relative;display:flex;align-items:center;}
-  .plate-input-wrap::before,.plate-input-wrap::after{
-    content:"";position:absolute;width:6px;height:6px;border-radius:50%;
-    background:rgba(0,255,102,0.3);top:8px;
-  }
-  .plate-input-wrap::before{left:8px;}
-  .plate-input-wrap::after{right:8px;}
   .plate-input{
     width:100%;border:none;outline:none;background:transparent;
     font-family:'Rajdhani',sans-serif;font-weight:700;
@@ -167,7 +148,6 @@
     color:#fff;
     padding:14px 18px;
   }
-  .plate-input::placeholder{color:var(--ink-faint);font-weight:600;}
   .stamp-btn{
     flex-shrink:0;
     background:linear-gradient(100deg,var(--plate-yellow),var(--steel-blue-dark));
@@ -177,41 +157,38 @@
     font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
     letter-spacing:0.08em;text-transform:uppercase;
     color:#012b12;cursor:pointer;
-    transition:filter 0.15s ease, transform 0.1s ease;
     border-radius:0 13px 13px 0;
   }
-  .stamp-btn:hover{filter:brightness(1.1);}
-  .stamp-btn:active{transform:scale(0.97);}
-  .stamp-btn svg{width:18px;height:18px;flex-shrink:0;}
-  .stamp-btn span{display:none;}
-  @media(min-width:420px){ .stamp-btn span{display:inline;} }
 
-  .hero-foot{
-    max-width:540px;margin:14px auto 0;
-    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 14px;
-    min-height:20px;
+  .download-btn {
+    display: none;
+    margin: 24px auto 0;
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10;
+    position: relative;
   }
-  .hint{font-size:12.5px;color:var(--ink-faint);}
-  .example-chip{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;color:var(--plate-yellow);
-    background:rgba(0,255,102,0.08);
-    border:1px solid rgba(0,255,102,0.3);
-    padding:3px 10px;border-radius:20px;
-    cursor:pointer;transition:background 0.15s, border-color .15s;
-  }
-  .example-chip:hover{background:rgba(0,255,102,0.16);border-color:rgba(0,255,102,0.5);}
-  .field-error{
-    font-size:12.5px;color:#ff9b9b;background:rgba(255,92,92,0.12);
-    border:1px solid rgba(255,92,92,0.3);
-    padding:5px 12px;border-radius:20px;display:none;
-  }
+  .download-btn.visible { display: inline-flex; }
+  .download-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2); }
 
-  /* ---------- Results area ---------- */
   .results-wrap{
     max-width:1040px;margin:0 auto;
     padding:0 clamp(20px,5vw,56px) 80px;
     position:relative;z-index:1;
+    text-align: center;
   }
   .results-wrap{margin-top:-40px;}
 
@@ -221,7 +198,6 @@
     border:1px solid var(--paper-line);
     backdrop-filter:blur(16px);
     border-radius:var(--radius);
-    box-shadow:var(--shadow);
     padding:48px 24px;
     text-align:center;
     margin-top:8px;
@@ -233,33 +209,17 @@
     border:4px dashed rgba(0,255,102,0.5);
     border-top-color:var(--plate-yellow);
     animation:spin 0.9s linear infinite;
-    box-shadow:0 0 20px rgba(0,255,102,0.2);
   }
   @keyframes spin{to{transform:rotate(360deg);}}
-  .state-panel p{color:var(--ink-soft);font-size:14.5px;margin:0;}
-  .state-panel.error-panel{
-    text-align:left;display:none;
-  }
-  .state-panel.error-panel.visible{display:flex;}
-  .error-panel{align-items:flex-start;gap:16px;padding:28px 26px;}
-  .error-icon{
-    flex-shrink:0;width:38px;height:38px;border-radius:50%;
-    background:var(--alert-red-bg);color:var(--alert-red);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .error-icon svg{width:20px;height:20px;}
-  .error-body h3{margin:0 0 4px;font-size:18px;color:#fff;}
-  .error-body p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.55;}
 
-  /* echo plate */
   .echo-plate{
     display:none;
     align-items:center;flex-wrap:wrap;gap:14px 22px;
     background:var(--card);border:1px solid var(--paper-line);
     backdrop-filter:blur(16px);
     border-radius:var(--radius);
-    box-shadow:var(--shadow);
     padding:18px 24px;margin-top:8px;margin-bottom:22px;
+    text-align: left;
   }
   .echo-plate.visible{display:flex;}
   .echo-number{
@@ -268,15 +228,14 @@
     background:rgba(0,255,102,0.06);border:1.5px solid rgba(0,255,102,0.4);border-radius:8px;
     padding:6px 14px;color:var(--plate-yellow);
   }
-  .echo-meta{display:flex;flex-direction:column;gap:2px;}
-  .echo-meta .name{font-weight:700;font-size:15px;color:#fff;}
+  .echo-meta .name{font-weight:700;font-size:15px;color:#fff;display: block;}
   .echo-meta .sub{font-size:12.5px;color:var(--ink-soft);}
 
-  /* ---------- Cards grid ---------- */
   .cards-grid{
     display:none;
     grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
     gap:20px;
+    text-align: left;
   }
   .cards-grid.visible{display:grid;}
   .card{
@@ -284,15 +243,8 @@
     border:1px solid var(--paper-line);
     backdrop-filter:blur(16px);
     border-radius:var(--radius);
-    box-shadow:var(--shadow);
     overflow:hidden;
     display:flex;flex-direction:column;
-    transition:transform .4s ease, border-color .4s ease, box-shadow .4s ease;
-  }
-  .card:hover{
-    transform:translateY(-4px);
-    border-color:rgba(0,255,102,0.3);
-    box-shadow:var(--shadow), 0 0 34px rgba(0,255,102,0.14);
   }
   .card-strip{height:3px;width:100%;}
   .strip-owner{background:linear-gradient(90deg,#00FF66,#00E676);}
@@ -301,72 +253,39 @@
   .strip-insurance{background:linear-gradient(90deg,#00FF66,#00E676);}
   .strip-compliance{background:linear-gradient(90deg,#FF5C5C,#ff8a5c);}
 
-  .card-head{
-    display:flex;align-items:center;gap:12px;
-    padding:18px 22px 14px;
-  }
+  .card-head{display:flex;align-items:center;gap:12px;padding:18px 22px 14px;}
   .card-icon{
     width:36px;height:36px;border-radius:10px;
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
     border:1px solid rgba(0,255,102,0.25);
+    background:rgba(0,255,102,0.08);color:var(--plate-yellow);
   }
-  .card-icon svg{width:19px;height:19px;}
-  .icon-owner{background:rgba(0,255,102,0.08);color:var(--plate-yellow);}
-  .icon-vehicle{background:rgba(255,255,255,0.05);color:#fff;border-color:rgba(255,255,255,0.15);}
-  .icon-registration{background:rgba(0,255,102,0.08);color:var(--plate-yellow);}
-  .icon-insurance{background:rgba(0,255,102,0.08);color:var(--plate-yellow);}
-  .icon-compliance{background:var(--alert-red-bg);color:var(--alert-red);border-color:rgba(255,92,92,0.3);}
   .card-head h3{margin:0;font-size:18px;font-weight:700;color:#fff;}
 
-  .card-body{padding:2px 22px 18px;display:flex;flex-direction:column;}
+  .card-body{padding:2px 22px 18px;}
   .row{
     display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
     padding:9px 0;border-top:1px solid var(--paper-line);
   }
-  .row:first-child{border-top:none;}
-  .row .label{font-size:12.5px;color:var(--ink-soft);flex-shrink:0;padding-top:2px;}
-  .row .value-wrap{display:flex;align-items:center;gap:6px;justify-content:flex-end;text-align:right;flex-wrap:wrap;}
-  .row .value{font-size:13.5px;font-weight:600;color:#fff;word-break:break-word;}
-  .row .value.mono{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12.5px;letter-spacing:0.02em;color:#e2e2e2;}
-
+  .row .label{font-size:12.5px;color:var(--ink-soft);padding-top:2px;}
+  .row .value{font-size:13.5px;font-weight:600;color:#fff;text-align:right;}
+  
   .badge{
-    font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;
-    padding:3px 9px;border-radius:20px;flex-shrink:0;
+    font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+    background:rgba(0,255,102,0.12);color:var(--plate-yellow);border:1px solid rgba(0,255,102,0.3);
   }
-  .badge-valid{background:rgba(0,255,102,0.12);color:var(--plate-yellow);border:1px solid rgba(0,255,102,0.3);}
-  .badge-expired{background:var(--alert-red-bg);color:var(--alert-red);border:1px solid rgba(255,92,92,0.3);}
 
-  .copy-btn{
-    border:none;background:transparent;cursor:pointer;
-    color:var(--ink-faint);padding:2px;display:inline-flex;
-    border-radius:4px;transition:color 0.15s;
-  }
-  .copy-btn svg{width:14px;height:14px;}
-  .copy-btn:hover{color:var(--plate-yellow);}
-  .copy-btn.copied{color:var(--plate-yellow);}
-
-  .empty-note{font-size:13px;color:var(--ink-faint);padding:10px 0;}
-
-  /* ---------- Footer ---------- */
   footer{
     padding:26px clamp(20px,5vw,56px) 34px;
-    text-align:center;
-    position:relative;z-index:1;
-    border-top:1px solid var(--paper-line);
+    text-align:center;border-top:1px solid var(--paper-line);
   }
-  footer .disclaimer{font-size:12px;color:var(--ink-faint);max-width:520px;margin:0 auto 8px;line-height:1.6;}
-  .dev-info{
-    display:none;
-    font-size:12px;color:var(--ink-soft);
-    gap:6px;justify-content:center;align-items:center;
-  }
-  .dev-info.visible{display:flex;}
-  .dev-info a{color:var(--plate-yellow);text-decoration:none;}
-  .dev-info a:hover{text-decoration:underline;}
+  
+  /* PDF Only styling adjustment */
+  .pdf-header { display: none; margin-bottom: 20px; border-bottom: 2px solid #00FF66; padding-bottom: 10px; }
 
   @media(max-width:480px){
     .row{flex-direction:column;gap:4px;}
-    .row .value-wrap{justify-content:flex-start;text-align:left;}
+    .row .value{text-align:left;}
   }
 </style>
 </head>
@@ -386,446 +305,176 @@
   <div class="hero-inner">
     <span class="eyebrow">Vehicle RC Lookup</span>
     <h1>Apni gaadi ki poori kundli,<br>ek search mein.</h1>
-    <p class="sub">Registration number daaliye — owner, insurance, PUC aur fitness details seconds mein, ek jagah pe.</p>
-
+    
     <div class="plate-search">
-      <div class="plate-strip">
-        <span class="iso">IND</span>
-        <span class="stars">★★★</span>
-      </div>
+      <div class="plate-strip"><span class="iso">IND</span></div>
       <div class="plate-input-wrap">
-        <input type="text" id="vehicleInput" class="plate-input" placeholder="GJ14X4555" maxlength="13" autocomplete="off" spellcheck="false" autocapitalize="characters">
+        <input type="text" id="vehicleInput" class="plate-input" placeholder="GJ14X4555" maxlength="13">
       </div>
-      <button id="searchBtn" class="stamp-btn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <button id="searchBtn" class="stamp-btn">
         <span>Search</span>
       </button>
     </div>
 
-    <div class="hero-foot">
-      <span class="hint">Try:</span>
-      <span class="example-chip" data-example="GJ14X4555">GJ14X4555</span>
-      <span class="example-chip" data-example="DL8CAF5030">DL8CAF5030</span>
-      <span class="field-error" id="fieldError">Please enter a valid registration number.</span>
-    </div>
+    <!-- PDF Download Button -->
+    <button id="downloadPdfBtn" class="download-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Save as PDF
+    </button>
   </div>
 </section>
 
 <div class="results-wrap">
-
   <div class="state-panel" id="loadingPanel">
     <div class="spinner"></div>
     <p>RTO records khangaal rahe hain…</p>
   </div>
 
-  <div class="state-panel error-panel" id="errorPanel">
-    <div class="error-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <!-- Ye area PDF mein print hoga -->
+  <div id="printableArea">
+    <div class="pdf-header" id="pdfHeader">
+        <h2 style="color:#00FF66; font-family:'Rajdhani'; margin:0;">VaahanCheck Report</h2>
+        <p style="color:#888; font-size:12px; margin:5px 0;">Generated on: <span id="pdfDate"></span></p>
     </div>
-    <div class="error-body">
-      <h3 id="errorTitle">Couldn't fetch this vehicle</h3>
-      <p id="errorMsg">Number check karke dobara try karein, ya kuch der baad phir se koshish karein.</p>
-    </div>
-  </div>
 
-  <div class="echo-plate" id="echoPlate">
-    <div class="echo-number mono" id="echoNumber">—</div>
-    <div class="echo-meta">
-      <span class="name" id="echoName">—</span>
-      <span class="sub" id="echoSub">—</span>
+    <div class="echo-plate" id="echoPlate">
+      <div class="echo-number mono" id="echoNumber">—</div>
+      <div class="echo-meta">
+        <span class="name" id="echoName">—</span>
+        <span class="sub" id="echoSub">—</span>
+      </div>
     </div>
-  </div>
 
-  <div class="cards-grid" id="cardsGrid"></div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
 </div>
 
 <footer>
-  <p class="disclaimer">Data publicly available vehicle-registration lookup service se aati hai, sirf reference ke liye hai. Official confirmation ke liye apne RTO se sampark karein.</p>
-  <div class="dev-info" id="devInfo"></div>
+  <p style="font-size:12px; color:#555;">Data for reference only. © 2026 VaahanCheck</p>
 </footer>
 
 <script>
 (function(){
   "use strict";
 
-  /* ============ Config ============ */
   var API_PREFIX = "https://vehicly-tau.vercel.app/details=";
-  var DEV_INFO = { name: "", url: "", note: "" }; // leave empty to auto-hide
 
-  var ICONS = {
-    user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-    car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm14 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" stroke-width="0" fill="none"/><path d="M3 17v-4l1.5-5A2 2 0 0 1 6.4 6.5h11.2a2 2 0 0 1 1.9 1.5L21 13v4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M3 13h18"/></svg>',
-    doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
-    shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5Z"/><path d="m9 12 2 2 4-4"/></svg>',
-    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
-    copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
-  };
-
-  /* ============ Section / field definitions ============ */
   var SECTIONS = [
-    {
-      id:'owner', title:'Owner Details', icon:ICONS.user, iconClass:'icon-owner', stripClass:'strip-owner',
-      fields:[
-        { label:'Owner Name', keys:['ownerName','owner_name','name','ownerFullName'] },
-        { label:'City Name', keys:['cityName','city_name','city'] },
-        { label:'Address', keys:['address','ownerAddress','presentAddress','permanentAddress'] },
-        { label:'Owner Serial No', keys:['ownerSerialNo','owner_serial_no','ownerSerialNumber','serialNo'] }
-      ]
-    },
-    {
-      id:'vehicle', title:'Vehicle Details', icon:ICONS.car, iconClass:'icon-vehicle', stripClass:'strip-vehicle',
-      fields:[
-        { label:'Modal Name', keys:['modalName','modal_name'] },
-        { label:'Model Name', keys:['modelName','model_name'] },
-        { label:'Maker Model', keys:['makerModel','maker_model','make','makerDescription'] },
-        { label:'Vehicle Class', keys:['vehicleClass','vehicle_class','class','vehicleCategory'] },
-        { label:'Fuel Type', keys:['fuelType','fuel_type'] },
-        { label:'Fuel Norms', keys:['fuelNorms','fuel_norms','normsType'] },
-        { label:'Chassis Number', keys:['chassisNumber','chassis_number','chassisNo'], copy:true, mono:true },
-        { label:'Engine Number', keys:['engineNumber','engine_number','engineNo'], copy:true, mono:true },
-        { label:'Vehicle Age', keys:['vehicleAge','vehicle_age','age'] },
-        { label:'Cubic Capacity', keys:['cubicCapacity','cubic_capacity','cc'] },
-        { label:'Seating Capacity', keys:['seatingCapacity','seating_capacity','seatCapacity'] }
-      ]
-    },
-    {
-      id:'registration', title:'Registration Details', icon:ICONS.doc, iconClass:'icon-registration', stripClass:'strip-registration',
-      fields:[
-        { label:'Code', keys:['code','regnCode','registrationCode'] },
-        { label:'Registration Number', keys:['registrationNumber','registration_number','regNo','regnNo'], copy:true, mono:true },
-        { label:'Registered RTO', keys:['registeredRTO','registered_rto','rtoName','regnAuthority'] },
-        { label:'Registration Date', keys:['registrationDate','registration_date','regnDate'] },
-        { label:'RTO Phone Number', keys:['rtoPhoneNumber','rto_phone_number','rtoPhone'] },
-        { label:'Website', keys:['website','rtoWebsite'] },
-        { label:'Blacklist Status', keys:['blacklistStatus','blacklist_status'], status:'blacklist' },
-        { label:'NOC Details', keys:['nocDetails','noc_details','noc'] },
-        { label:'Financer Name', keys:['financerName','financer_name','financer'] }
-      ]
-    },
-    {
-      id:'insurance', title:'Insurance Details', icon:ICONS.shield, iconClass:'icon-insurance', stripClass:'strip-insurance',
-      fields:[
-        { label:'Insurance Status', keys:['insuranceStatus','insurance_status'], status:'default' },
-        { label:'Insurance Expiry', keys:['insuranceExpiry','insurance_expiry','insuranceExpiryDate'] },
-        { label:'Insurance Company', keys:['insuranceCompany','insurance_company','insurer'] },
-        { label:'Insurance Upto', keys:['insuranceUpto','insurance_upto'], status:'default' },
-        { label:'Insurance Expiry In', keys:['insuranceExpiryIn','insurance_expiry_in'] }
-      ]
-    },
-    {
-      id:'compliance', title:'Compliance Details', icon:ICONS.check, iconClass:'icon-compliance', stripClass:'strip-compliance',
-      fields:[
-        { label:'Fitness Upto', keys:['fitnessUpto','fitness_upto'], status:'default' },
-        { label:'Tax Upto', keys:['taxUpto','tax_upto'], status:'default' },
-        { label:'PUC Upto', keys:['pucUpto','puc_upto'], status:'default' },
-        { label:'PUC Expiry In', keys:['pucExpiryIn','puc_expiry_in'] },
-        { label:'Permit Type', keys:['permitType','permit_type'] }
-      ]
-    }
+    { id:'owner', title:'Owner Details', stripClass:'strip-owner', fields:[
+        { label:'Owner Name', keys:['ownerName','name','owner_name'] },
+        { label:'City', keys:['cityName','city'] },
+        { label:'Address', keys:['address','presentAddress'] }
+    ]},
+    { id:'vehicle', title:'Vehicle Details', stripClass:'strip-vehicle', fields:[
+        { label:'Model', keys:['modelName','makerModel','modal_name'] },
+        { label:'Class', keys:['vehicleClass','class'] },
+        { label:'Fuel', keys:['fuelType'] },
+        { label:'Engine No', keys:['engineNumber','engineNo'] },
+        { label:'Chassis No', keys:['chassisNumber','chassisNo'] }
+    ]},
+    { id:'insurance', title:'Insurance & Compliance', stripClass:'strip-insurance', fields:[
+        { label:'Insurance Upto', keys:['insuranceUpto','insuranceExpiry'] },
+        { label:'Fitness Upto', keys:['fitnessUpto'] },
+        { label:'PUC Upto', keys:['pucUpto'] }
+    ]}
   ];
 
-  /* ============ DOM refs ============ */
   var inputEl = document.getElementById('vehicleInput');
   var searchBtn = document.getElementById('searchBtn');
-  var fieldError = document.getElementById('fieldError');
-  var loadingPanel = document.getElementById('loadingPanel');
-  var errorPanel = document.getElementById('errorPanel');
-  var errorMsg = document.getElementById('errorMsg');
-  var echoPlate = document.getElementById('echoPlate');
-  var echoNumber = document.getElementById('echoNumber');
-  var echoName = document.getElementById('echoName');
-  var echoSub = document.getElementById('echoSub');
+  var downloadBtn = document.getElementById('downloadPdfBtn');
   var cardsGrid = document.getElementById('cardsGrid');
-  var devInfo = document.getElementById('devInfo');
-
-  /* ============ Dev info footer ============ */
-  (function initDevInfo(){
-    if(DEV_INFO.name || DEV_INFO.note){
-      var html = '';
-      if(DEV_INFO.name){
-        html += DEV_INFO.url
-          ? '<a href="'+DEV_INFO.url+'" target="_blank" rel="noopener">Built by '+DEV_INFO.name+'</a>'
-          : '<span>Built by '+DEV_INFO.name+'</span>';
-      }
-      if(DEV_INFO.note){ html += (html?' · ':'') + '<span>'+DEV_INFO.note+'</span>'; }
-      devInfo.innerHTML = html;
-      devInfo.classList.add('visible');
-    }
-  })();
-
-  /* ============ Helpers: normalize + flatten + pick ============ */
-  function normalizeKey(k){
-    return String(k).toLowerCase().replace(/[^a-z0-9]/g,'');
-  }
+  var loadingPanel = document.getElementById('loadingPanel');
+  var echoPlate = document.getElementById('echoPlate');
 
   function flatten(obj, out){
     out = out || {};
     if(!obj || typeof obj !== 'object') return out;
-    Object.keys(obj).forEach(function(key){
-      var val = obj[key];
-      if(val && typeof val === 'object' && !Array.isArray(val)){
-        flatten(val, out);
-      } else if(!Array.isArray(val)){
-        var nk = normalizeKey(key);
-        if(out[nk] === undefined || out[nk] === null || out[nk] === ''){
-          out[nk] = val;
-        }
-      }
+    Object.keys(obj).forEach(function(k){
+      if(obj[k] && typeof obj[k] === 'object' && !Array.isArray(obj[k])) flatten(obj[k], out);
+      else out[k.toLowerCase().replace(/[^a-z0-9]/g,'')] = obj[k];
     });
     return out;
   }
 
   function pickValue(flat, keys){
-    for(var i=0;i<keys.length;i++){
-      var nk = normalizeKey(keys[i]);
-      var v = flat[nk];
-      if(v !== undefined && v !== null && String(v).trim() !== '' && String(v).trim().toLowerCase() !== 'null'){
-        return String(v).trim();
-      }
+    for(var i=0; i<keys.length; i++){
+      var k = keys[i].toLowerCase().replace(/[^a-z0-9]/g,'');
+      if(flat[k]) return String(flat[k]);
     }
     return null;
-  }
-
-  /* ============ Date parsing for status badges ============ */
-  function parseFlexibleDate(str){
-    if(!str) return null;
-    str = str.trim();
-    var m;
-    // DD-MM-YYYY or DD/MM/YYYY
-    m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-    if(m){ return new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10)); }
-    // YYYY-MM-DD
-    m = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
-    if(m){ return new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10)); }
-    // fallback native parse (handles "12 Jan 2026" etc.)
-    var d = new Date(str);
-    if(!isNaN(d.getTime())) return d;
-    return null;
-  }
-
-  function resolveStatus(kind, value){
-    if(!value) return null;
-    var v = value.toLowerCase();
-    if(kind === 'blacklist'){
-      if(/\b(no|not|clear|none)\b/.test(v)) return 'valid';
-      if(/\b(yes|blacklisted)\b/.test(v)) return 'expired';
-      return null;
-    }
-    if(/expired|inactive|invalid|lapsed|blacklisted/.test(v)) return 'expired';
-    if(/\b(valid|active|ok|clear)\b/.test(v)) return 'valid';
-    var d = parseFlexibleDate(value);
-    if(d) return d.getTime() < Date.now() ? 'expired' : 'valid';
-    return null;
-  }
-
-  /* ============ Rendering ============ */
-  function escapeHtml(str){
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function buildRow(field, flat){
-    var value = pickValue(flat, field.keys);
-    if(!value) return '';
-
-    var badgeHtml = '';
-    if(field.status){
-      var st = resolveStatus(field.status, value);
-      if(st === 'valid') badgeHtml = '<span class="badge badge-valid">Valid</span>';
-      if(st === 'expired') badgeHtml = '<span class="badge badge-expired">Expired</span>';
-    }
-
-    var copyHtml = '';
-    if(field.copy){
-      copyHtml = '<button type="button" class="copy-btn" data-copy="'+escapeHtml(value)+'" title="Copy">'+ICONS.copy+'</button>';
-    }
-
-    var valueClass = 'value' + (field.mono ? ' mono' : '');
-
-    return (
-      '<div class="row">' +
-        '<span class="label">'+escapeHtml(field.label)+'</span>' +
-        '<span class="value-wrap">' +
-          '<span class="'+valueClass+'">'+escapeHtml(value)+'</span>' +
-          badgeHtml + copyHtml +
-        '</span>' +
-      '</div>'
-    );
-  }
-
-  function buildCard(section, flat){
-    var rowsHtml = section.fields.map(function(f){ return buildRow(f, flat); }).join('');
-    if(!rowsHtml.trim()) return '';
-    return (
-      '<div class="card">' +
-        '<div class="card-strip '+section.stripClass+'"></div>' +
-        '<div class="card-head">' +
-          '<span class="card-icon '+section.iconClass+'">'+section.icon+'</span>' +
-          '<h3>'+section.title+'</h3>' +
-        '</div>' +
-        '<div class="card-body">'+rowsHtml+'</div>' +
-      '</div>'
-    );
   }
 
   function renderResults(data, queried){
-    var flat = flatten(data, {});
-
-    var cardsHtml = SECTIONS.map(function(section){ return buildCard(section, flat); }).join('');
-
-    if(!cardsHtml.trim()){
-      showError('No data found', 'Is registration number ke liye koi record nahi mila. Number check karein.');
-      return;
-    }
-
-    cardsGrid.innerHTML = cardsHtml;
-    cardsGrid.classList.add('visible');
-
-    var regNo = pickValue(flat, ['registrationNumber','registration_number','regNo','regnNo']) || queried;
-    var ownerName = pickValue(flat, ['ownerName','owner_name','name']);
-    var maker = pickValue(flat, ['makerModel','maker_model','make']);
-    var model = pickValue(flat, ['modelName','model_name','modalName']);
-
-    echoNumber.textContent = regNo;
-    echoName.textContent = ownerName || 'Owner details unavailable';
-    echoSub.textContent = [maker, model].filter(Boolean).join(' · ') || 'Vehicle details unavailable';
-    echoPlate.classList.add('visible');
-
-    attachCopyHandlers();
-  }
-
-  function attachCopyHandlers(){
-    var buttons = cardsGrid.querySelectorAll('.copy-btn');
-    buttons.forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var text = btn.getAttribute('data-copy');
-        var done = function(){
-          btn.classList.add('copied');
-          btn.innerHTML = ICONS.check;
-          setTimeout(function(){
-            btn.classList.remove('copied');
-            btn.innerHTML = ICONS.copy;
-          }, 1400);
-        };
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text, done); });
-        } else {
-          fallbackCopy(text, done);
-        }
+    var flat = flatten(data);
+    var html = '';
+    
+    SECTIONS.forEach(function(sec){
+      var rows = '';
+      sec.fields.forEach(function(f){
+        var val = pickValue(flat, f.keys);
+        if(val) rows += '<div class="row"><span class="label">'+f.label+'</span><span class="value">'+val+'</span></div>';
       });
+      if(rows) html += '<div class="card"><div class="card-strip '+sec.stripClass+'"></div><div class="card-head"><h3>'+sec.title+'</h3></div><div class="card-body">'+rows+'</div></div>';
     });
-  }
 
-  function fallbackCopy(text, cb){
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try{ document.execCommand('copy'); }catch(e){}
-    document.body.removeChild(ta);
-    cb();
-  }
-
-  /* ============ States ============ */
-  function resetStates(){
     loadingPanel.classList.remove('visible');
-    errorPanel.classList.remove('visible');
-    echoPlate.classList.remove('visible');
-    cardsGrid.classList.remove('visible');
-    cardsGrid.innerHTML = '';
+    if(!html){ alert("No data found"); return; }
+
+    cardsGrid.innerHTML = html;
+    cardsGrid.classList.add('visible');
+    
+    document.getElementById('echoNumber').textContent = queried;
+    document.getElementById('echoName').textContent = pickValue(flat, ['ownerName']) || 'Owner Details Unavailable';
+    document.getElementById('echoSub').textContent = pickValue(flat, ['modelName','makerModel']) || '';
+    echoPlate.classList.add('visible');
+    
+    // Show PDF Button
+    downloadBtn.classList.add('visible');
   }
 
-  function showLoading(){
-    resetStates();
+  searchBtn.addEventListener('click', function(){
+    var val = inputEl.value.trim().toUpperCase();
+    if(!val) return;
+    
     loadingPanel.classList.add('visible');
-  }
+    cardsGrid.classList.remove('visible');
+    echoPlate.classList.remove('visible');
+    downloadBtn.classList.remove('visible');
 
-  function showError(title, message){
-    resetStates();
-    document.getElementById('errorTitle').textContent = title;
-    errorMsg.textContent = message;
-    errorPanel.classList.add('visible');
-  }
-
-  /* ============ Input validation ============ */
-  function normalizeVehicleNumber(raw){
-    return String(raw || '').toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9]/g,'');
-  }
-
-  function isLikelyValid(number){
-    // Loose check: at least 8 chars, starts with 2 letters, contains digits.
-    return /^[A-Z]{2}[A-Z0-9]{6,11}$/.test(number);
-  }
-
-  /* ============ Search flow ============ */
-  function runSearch(){
-    fieldError.style.display = 'none';
-    var raw = inputEl.value;
-    var number = normalizeVehicleNumber(raw);
-    inputEl.value = number;
-
-    if(!number){
-      fieldError.textContent = 'Vehicle number daalna zaroori hai.';
-      fieldError.style.display = 'inline-block';
-      return;
-    }
-    if(!isLikelyValid(number)){
-      fieldError.textContent = 'Format sahi nahi lag raha (jaise GJ14X4555).';
-      fieldError.style.display = 'inline-block';
-      return;
-    }
-
-    showLoading();
-    searchBtn.disabled = true;
-
-    var url = API_PREFIX + encodeURIComponent(number);
-
-    fetch(url)
-      .then(function(res){
-        if(!res.ok){
-          throw new Error('HTTP_' + res.status);
-        }
-        return res.json();
+    fetch(API_PREFIX + val)
+      .then(res => res.json())
+      .then(json => {
+        var payload = json.data || json.result || json;
+        renderResults(payload, val);
       })
-      .then(function(json){
-        if(!json || (json.success === false) || (json.error) || (json.status === 'error')){
-          var msg = (json && (json.message || json.error)) || 'Vehicle number invalid ya record nahi mila.';
-          showError('Vehicle nahi mila', typeof msg === 'string' ? msg : 'Vehicle number invalid ya record nahi mila.');
-          return;
-        }
-        var payload = json.data || json.result || json.response || json;
-        renderResults(payload, number);
-      })
-      .catch(function(err){
-        var msg = 'Server se connect nahi ho paaya. Thodi der baad try karein.';
-        if(String(err.message || '').indexOf('HTTP_404') !== -1){
-          msg = 'Ye registration number records mein nahi mila.';
-        } else if(String(err.message || '').indexOf('HTTP_') !== -1){
-          msg = 'Service abhi available nahi hai (server error). Baad mein try karein.';
-        }
-        showError('Kuch gadbad ho gayi', msg);
-      })
-      .finally(function(){
-        searchBtn.disabled = false;
+      .catch(err => {
+        loadingPanel.classList.remove('visible');
+        alert("Error fetching data");
       });
-  }
-
-  /* ============ Events ============ */
-  searchBtn.addEventListener('click', runSearch);
-  inputEl.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') runSearch();
-  });
-  inputEl.addEventListener('input', function(){
-    fieldError.style.display = 'none';
   });
 
-  document.querySelectorAll('.example-chip').forEach(function(chip){
-    chip.addEventListener('click', function(){
-      inputEl.value = chip.getAttribute('data-example');
-      runSearch();
+  // --- PDF DOWNLOAD LOGIC ---
+  downloadBtn.addEventListener('click', function() {
+    var element = document.getElementById('printableArea');
+    var vehicleNo = document.getElementById('echoNumber').textContent;
+    
+    // PDF Header update
+    document.getElementById('pdfDate').textContent = new Date().toLocaleString();
+    document.getElementById('pdfHeader').style.display = 'block';
+
+    var opt = {
+      margin:       10,
+      filename:     'RC_Report_' + vehicleNo + '.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, backgroundColor: '#050505', useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    downloadBtn.textContent = "Generating...";
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      downloadBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save as PDF`;
+      document.getElementById('pdfHeader').style.display = 'none';
     });
   });
 
@@ -833,4 +482,3 @@
 </script>
 </body>
 </html>
-
