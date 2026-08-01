@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAHAN AI — Vehicle RC Lookup</title>
+<title>VAHAN AI RTO CHECK UP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -461,6 +461,9 @@
   .dev-info a{color:var(--plate-yellow);text-decoration:none;}
   .dev-info a:hover{text-decoration:underline;}
 
+  /* ---------- PDF watermark (print only) ---------- */
+  #pdfWatermark{display:none;}
+
   @media(max-width:480px){
     .row{flex-direction:column;gap:4px;}
     .row .value-wrap{justify-content:flex-start;text-align:left;}
@@ -501,10 +504,58 @@
     footer .disclaimer{color:#555 !important;}
     .dev-info{display:none !important;}
     @page{margin:16mm 12mm;}
+
+    #pdfWatermark{
+      display:block !important;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      pointer-events:none;
+      background-image:
+        repeating-linear-gradient(
+          -35deg,
+          transparent 0,
+          transparent 140px,
+          rgba(0, 150, 70, 0.09) 140px,
+          rgba(0, 150, 70, 0.09) 141px
+        );
+      display:flex !important;
+      flex-wrap:wrap;
+      align-content:space-around;
+      justify-content:space-around;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    #pdfWatermark span{
+      display:block;
+      font-family:'Rajdhani',sans-serif;
+      font-weight:700;
+      font-size:15px;
+      letter-spacing:0.06em;
+      color:rgba(10,122,60,0.16);
+      transform:rotate(-35deg);
+      white-space:nowrap;
+      text-transform:uppercase;
+      margin:26px 18px;
+    }
+    #pdfWatermark::after{
+      content:"VaahanCheck × Ajit Sahani";
+      position:fixed;
+      top:50%;left:50%;
+      transform:translate(-50%,-50%) rotate(-35deg);
+      font-family:'Rajdhani',sans-serif;
+      font-weight:700;
+      font-size:52px;
+      letter-spacing:0.08em;
+      color:rgba(10,122,60,0.10);
+      white-space:nowrap;
+      text-transform:uppercase;
+    }
   }
 </style>
 </head>
 <body>
+
+<div id="pdfWatermark"></div>
 
 <div class="topbar">
   <div class="brand">
@@ -519,7 +570,7 @@
 <section class="hero">
   <div class="hero-inner">
     <span class="eyebrow">Vehicle RC Lookup</span>
-    <h1>VAHAN AI,<br>DEVELOPER:- AJIT SAHANI.</h1>
+    <h1>VAHAN AI,<br>DEVELOPER:-AJIT SAHANI.</h1>
     <p class="sub">Registration number daaliye — owner, insurance, PUC aur fitness details seconds mein, ek jagah pe.</p>
 
     <div class="plate-search">
@@ -711,6 +762,19 @@
       devInfo.innerHTML = html;
       devInfo.classList.add('visible');
     }
+  })();
+
+  /* ============ PDF watermark tiler ============ */
+  (function initWatermark(){
+    var el = document.getElementById('pdfWatermark');
+    if(!el) return;
+    var lines = ['VaahanCheck', 'Dev: Ajit Sahani'];
+    var tileCount = 60;
+    var html = '';
+    for(var i = 0; i < tileCount; i++){
+      html += '<span>' + lines[i % 2] + '</span>';
+    }
+    el.innerHTML = html;
   })();
 
   /* ============ Helpers: normalize + flatten + pick ============ */
