@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAHAN AI RTO CHECK UP</title>
+<title>VaahanCheck — Vehicle RC Lookup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -471,12 +471,27 @@
 
   /* ---------- Print / Save as PDF ---------- */
   @media print{
-    body::before,body::after,.hero::before{display:none !important;}
-    body{background:#fff !important;color:#111 !important;}
-    .topbar{background:#111 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    *{
+      -webkit-print-color-adjust:exact !important;
+      print-color-adjust:exact !important;
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+      text-shadow:none !important;
+      box-shadow:none !important;
+      animation:none !important;
+      filter:none !important;
+    }
+    body::before,body::after,.hero::before,.hero::after{display:none !important;}
+    body{
+      background:#fff !important;
+      color:#111 !important;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    .topbar{background:#111 !important;}
     .hero{padding-top:20px;padding-bottom:20px;}
     .hero h1,.hero p.sub{color:#111 !important;}
-    .eyebrow{color:#0a7a3c !important;background:#eafbf1 !important;border-color:#b7ecd0 !important;}
+    .eyebrow{color:#0a7a3c !important;background:#eafbf1 !important;border:1px solid #b7ecd0 !important;}
     .plate-search{display:none !important;}
     .hero-foot{display:none !important;}
     .field-error{display:none !important;}
@@ -486,11 +501,10 @@
     .echo-plate,.card,.challan-card,.challan-summary{
       background:#fff !important;
       border:1px solid #ddd !important;
-      box-shadow:none !important;
-      -webkit-print-color-adjust:exact;print-color-adjust:exact;
       break-inside:avoid;
+      page-break-inside:avoid;
     }
-    .echo-number{color:#0a7a3c !important;background:#eafbf1 !important;border-color:#0a7a3c !important;}
+    .echo-number{color:#0a7a3c !important;background:#eafbf1 !important;border:1.5px solid #0a7a3c !important;}
     .echo-meta .name,.echo-meta .sub,.card-head h3,.row .value,.challan-offense,.challan-number,.challan-summary-text h3{
       color:#111 !important;
     }
@@ -499,7 +513,6 @@
     .badge-expired{background:#fdeceb !important;color:#b32318 !important;border:1px solid #b32318 !important;}
     .copy-btn{display:none !important;}
     .cards-grid{display:grid !important;grid-template-columns:1fr 1fr;gap:14px;}
-    .card:hover,.challan-card:hover{transform:none !important;}
     footer{border-top:1px solid #ddd;}
     footer .disclaimer{color:#555 !important;}
     .dev-info{display:none !important;}
@@ -511,42 +524,31 @@
       inset:0;
       z-index:9999;
       pointer-events:none;
-      background-image:
-        repeating-linear-gradient(
-          -35deg,
-          transparent 0,
-          transparent 140px,
-          rgba(0, 150, 70, 0.09) 140px,
-          rgba(0, 150, 70, 0.09) 141px
-        );
-      display:flex !important;
-      flex-wrap:wrap;
-      align-content:space-around;
-      justify-content:space-around;
-      -webkit-print-color-adjust:exact;print-color-adjust:exact;
     }
-    #pdfWatermark span{
-      display:block;
+    #pdfWatermark span{display:none !important;}
+    #pdfWatermark::before{
+      content:"VaahanCheck  •  Dev: Ajit Sahani";
+      position:fixed;
+      top:18%;left:50%;
+      transform:translate(-50%,-50%) rotate(-30deg);
       font-family:'Rajdhani',sans-serif;
       font-weight:700;
-      font-size:15px;
-      letter-spacing:0.06em;
-      color:rgba(10,122,60,0.16);
-      transform:rotate(-35deg);
+      font-size:26px;
+      letter-spacing:0.1em;
+      color:rgba(10,122,60,0.14);
       white-space:nowrap;
       text-transform:uppercase;
-      margin:26px 18px;
     }
     #pdfWatermark::after{
-      content:"VaahanCheck × Ajit Sahani";
+      content:"VaahanCheck  •  Dev: Ajit Sahani";
       position:fixed;
-      top:50%;left:50%;
-      transform:translate(-50%,-50%) rotate(-35deg);
+      bottom:18%;left:50%;
+      transform:translate(-50%,50%) rotate(-30deg);
       font-family:'Rajdhani',sans-serif;
       font-weight:700;
-      font-size:52px;
-      letter-spacing:0.08em;
-      color:rgba(10,122,60,0.10);
+      font-size:26px;
+      letter-spacing:0.1em;
+      color:rgba(10,122,60,0.14);
       white-space:nowrap;
       text-transform:uppercase;
     }
@@ -764,18 +766,9 @@
     }
   })();
 
-  /* ============ PDF watermark tiler ============ */
-  (function initWatermark(){
-    var el = document.getElementById('pdfWatermark');
-    if(!el) return;
-    var lines = ['VaahanCheck', 'Dev: Ajit Sahani'];
-    var tileCount = 60;
-    var html = '';
-    for(var i = 0; i < tileCount; i++){
-      html += '<span>' + lines[i % 2] + '</span>';
-    }
-    el.innerHTML = html;
-  })();
+  /* PDF watermark is rendered purely via print CSS pseudo-elements on
+     #pdfWatermark (see @media print) — no JS DOM generation needed,
+     keeping the print output crisp and vector-based. */
 
   /* ============ Helpers: normalize + flatten + pick ============ */
   function normalizeKey(k){
